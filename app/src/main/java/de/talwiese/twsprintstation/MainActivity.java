@@ -299,7 +299,23 @@ public class MainActivity extends Activity {
             out.write(new byte[]{0x1B, 0x40});          // init
             out.write(new byte[]{0x1B, 0x74, 0x10});    // CP850
             out.write(new byte[]{0x1D, 0x21, 0x00});    // normal size
-            out.write(safe.getBytes(Charset.forName("US-ASCII")));
+            String[] lines = safe.split("\\n");
+
+            for (String ln : lines) {
+                if (
+                    ln.contains("KUECHENBON") ||
+                    ln.contains("THEKENBON") ||
+                    ln.matches("^[0-9]+(\\.00)?x .*")
+                ) {
+                    out.write(new byte[]{0x1D, 0x21, 0x11});
+                    out.write(ln.getBytes(Charset.forName("US-ASCII")));
+                    out.write(new byte[]{0x1D, 0x21, 0x00});
+                    out.write(new byte[]{0x0A});
+                } else {
+                    out.write(ln.getBytes(Charset.forName("US-ASCII")));
+                    out.write(new byte[]{0x0A});
+                }
+            }
             out.write(new byte[]{0x0A, 0x0A, 0x0A, 0x0A});
             out.flush();
 
